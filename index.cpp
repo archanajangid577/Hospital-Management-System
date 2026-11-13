@@ -1,146 +1,364 @@
 #include <iostream>
+#include <vector>
 #include <string>
+#include <iomanip>
 using namespace std;
 
-// Base class
+// Base Class
 class Person {
 protected:
     string name;
     int age;
 
 public:
-    Person() {
-        name = "";
-        age = 0;
-    }
-
-    void getPersonDetails() {
-        cout << "Enter name: ";
+    void getDetails() {
+        cout << "Enter Name: ";
         getline(cin, name);
 
-        cout << "Enter age: ";
+        cout << "Enter Age: ";
         cin >> age;
         cin.ignore();
     }
 
-    void showPersonDetails() {
+    void showDetails() {
         cout << "Name: " << name << endl;
         cout << "Age: " << age << endl;
     }
 };
 
-// Patient class inherits Person
+// Patient Class
 class Patient : public Person {
-private:
+public:
     int patientID;
     string disease;
 
-public:
-    void addPatient() {
-        cout << "\nEnter Patient ID: ";
-        cin >> patientID;
-        cin.ignore();
+    void addPatient(int id) {
+        patientID = id;
 
-        getPersonDetails();
+        cout << "\nEnter Patient Details\n";
 
-        cout << "Enter disease: ";
+        getDetails();
+
+        cout << "Enter Disease: ";
         getline(cin, disease);
 
-        cout << "\nPatient added successfully!\n";
+        cout << "\nPatient Registered Successfully!\n";
     }
 
     void displayPatient() {
-        cout << "\n--- Patient Details ---\n";
-        cout << "Patient ID: " << patientID << endl;
-        showPersonDetails();
+        cout << "\nPatient ID: " << patientID << endl;
+        showDetails();
         cout << "Disease: " << disease << endl;
     }
 };
 
-// Doctor class inherits Person
+// Doctor Class
 class Doctor : public Person {
-private:
+public:
     int doctorID;
     string specialization;
+    double fee;
 
-public:
-    void addDoctor() {
-        cout << "\nEnter Doctor ID: ";
-        cin >> doctorID;
-        cin.ignore();
+    void addDoctor(int id) {
+        doctorID = id;
 
-        getPersonDetails();
+        cout << "\nEnter Doctor Details\n";
 
-        cout << "Enter specialization: ";
+        getDetails();
+
+        cout << "Enter Specialization: ";
         getline(cin, specialization);
 
-        cout << "\nDoctor added successfully!\n";
+        cout << "Enter Consultation Fee: ";
+        cin >> fee;
+        cin.ignore();
+
+        cout << "\nDoctor Added Successfully!\n";
     }
 
     void displayDoctor() {
-        cout << "\n--- Doctor Details ---\n";
-        cout << "Doctor ID: " << doctorID << endl;
-        showPersonDetails();
+        cout << "\nDoctor ID: " << doctorID << endl;
+        showDetails();
+
         cout << "Specialization: " << specialization << endl;
+        cout << "Consultation Fee: Rs. " << fee << endl;
     }
 };
 
-// Main function
-int main() {
-    Patient patient;
-    Doctor doctor;
+// Appointment Class
+class Appointment {
+public:
+    int appointmentID;
+    int patientID;
+    int doctorID;
+    string date;
 
-    int choice;
-    bool patientAdded = false;
-    bool doctorAdded = false;
+    void bookAppointment(int a, int p, int d, string dt) {
+        appointmentID = a;
+        patientID = p;
+        doctorID = d;
+        date = dt;
+    }
 
-    do {
-        cout << "\n================================\n";
-        cout << "   HOSPITAL MANAGEMENT SYSTEM\n";
-        cout << "================================\n";
-        cout << "1. Add Patient\n";
-        cout << "2. View Patient\n";
-        cout << "3. Add Doctor\n";
-        cout << "4. View Doctor\n";
-        cout << "5. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore();
+    void displayAppointment() {
+        cout << "\nAppointment ID: " << appointmentID << endl;
+        cout << "Patient ID: " << patientID << endl;
+        cout << "Doctor ID: " << doctorID << endl;
+        cout << "Date: " << date << endl;
+    }
+};
 
-        switch (choice) {
-            case 1:
-                patient.addPatient();
-                patientAdded = true;
-                break;
+// Hospital Management Class
+class Hospital {
+private:
+    vector<Patient> patients;
+    vector<Doctor> doctors;
+    vector<Appointment> appointments;
 
-            case 2:
-                if (patientAdded)
-                    patient.displayPatient();
-                else
-                    cout << "\nNo patient record available.\n";
-                break;
+    int pID = 1;
+    int dID = 1;
+    int aID = 1;
 
-            case 3:
-                doctor.addDoctor();
-                doctorAdded = true;
-                break;
+public:
 
-            case 4:
-                if (doctorAdded)
-                    doctor.displayDoctor();
-                else
-                    cout << "\nNo doctor record available.\n";
-                break;
+    // MODULE 1: Patient Management
 
-            case 5:
-                cout << "\nThank you for using the system!\n";
-                break;
+    void registerPatient() {
+        Patient p;
+        p.addPatient(pID++);
+        patients.push_back(p);
+    }
 
-            default:
-                cout << "\nInvalid choice. Try again.\n";
+    void showPatients() {
+        if (patients.empty()) {
+            cout << "\nNo Patient Records Found!\n";
+            return;
         }
 
-    } while (choice != 5);
+        for (auto &p : patients) {
+            p.displayPatient();
+        }
+    }
+
+    // MODULE 2: Doctor Management
+
+    void addDoctor() {
+        Doctor d;
+        d.addDoctor(dID++);
+        doctors.push_back(d);
+    }
+
+    void showDoctors() {
+        if (doctors.empty()) {
+            cout << "\nNo Doctor Records Found!\n";
+            return;
+        }
+
+        for (auto &d : doctors) {
+            d.displayDoctor();
+        }
+    }
+
+    // MODULE 3: Appointment Management
+
+    void bookAppointment() {
+        int p, d;
+        string date;
+
+        if (patients.empty() || doctors.empty()) {
+            cout << "\nAdd Patient and Doctor First!\n";
+            return;
+        }
+
+        cout << "\nEnter Patient ID: ";
+        cin >> p;
+
+        cout << "Enter Doctor ID: ";
+        cin >> d;
+        cin.ignore();
+
+        bool patientFound = false;
+        bool doctorFound = false;
+
+        for (auto &x : patients) {
+            if (x.patientID == p)
+                patientFound = true;
+        }
+
+        for (auto &x : doctors) {
+            if (x.doctorID == d)
+                doctorFound = true;
+        }
+
+        if (!patientFound || !doctorFound) {
+            cout << "\nInvalid Patient or Doctor ID!\n";
+            return;
+        }
+
+        cout << "Enter Appointment Date: ";
+        getline(cin, date);
+
+        Appointment a;
+        a.bookAppointment(aID++, p, d, date);
+
+        appointments.push_back(a);
+
+        cout << "\nAppointment Booked Successfully!\n";
+    }
+
+    void showAppointments() {
+        if (appointments.empty()) {
+            cout << "\nNo Appointments Found!\n";
+            return;
+        }
+
+        for (auto &a : appointments) {
+            a.displayAppointment();
+        }
+    }
+
+    void cancelAppointment() {
+        int id;
+
+        cout << "\nEnter Appointment ID: ";
+        cin >> id;
+
+        for (int i = 0; i < appointments.size(); i++) {
+            if (appointments[i].appointmentID == id) {
+
+                appointments.erase(appointments.begin() + i);
+
+                cout << "\nAppointment Cancelled Successfully!\n";
+                return;
+            }
+        }
+
+        cout << "\nAppointment Not Found!\n";
+    }
+
+    // MODULE 4: Billing System
+
+    void generateBill() {
+        int p, d;
+        double fee = 0;
+
+        cout << "\nEnter Patient ID: ";
+        cin >> p;
+
+        cout << "Enter Doctor ID: ";
+        cin >> d;
+
+        bool patientFound = false;
+        bool doctorFound = false;
+
+        for (auto &x : patients) {
+            if (x.patientID == p)
+                patientFound = true;
+        }
+
+        for (auto &x : doctors) {
+            if (x.doctorID == d) {
+                doctorFound = true;
+                fee = x.fee;
+            }
+        }
+
+        if (!patientFound || !doctorFound) {
+            cout << "\nInvalid Patient or Doctor ID!\n";
+            return;
+        }
+
+        cout << "\n========== HOSPITAL BILL ==========\n";
+
+        cout << "Patient ID: " << p << endl;
+        cout << "Doctor ID: " << d << endl;
+
+        cout << "Consultation Fee: Rs. "
+             << fixed << setprecision(2) << fee << endl;
+
+        cout << "Total Amount: Rs. " << fee << endl;
+
+        cout << "===================================\n";
+    }
+
+    // MAIN MENU
+
+    void menu() {
+        int choice;
+
+        do {
+            cout << "\n====================================\n";
+            cout << "      HOSPITAL MANAGEMENT SYSTEM\n";
+            cout << "====================================\n";
+
+            cout << "1. Register Patient\n";
+            cout << "2. View Patients\n";
+            cout << "3. Add Doctor\n";
+            cout << "4. View Doctors\n";
+            cout << "5. Book Appointment\n";
+            cout << "6. View Appointments\n";
+            cout << "7. Cancel Appointment\n";
+            cout << "8. Generate Patient Bill\n";
+            cout << "0. Exit\n";
+
+            cout << "====================================\n";
+
+            cout << "Enter Your Choice: ";
+            cin >> choice;
+            cin.ignore();
+
+            switch (choice) {
+
+                case 1:
+                    registerPatient();
+                    break;
+
+                case 2:
+                    showPatients();
+                    break;
+
+                case 3:
+                    addDoctor();
+                    break;
+
+                case 4:
+                    showDoctors();
+                    break;
+
+                case 5:
+                    bookAppointment();
+                    break;
+
+                case 6:
+                    showAppointments();
+                    break;
+
+                case 7:
+                    cancelAppointment();
+                    break;
+
+                case 8:
+                    generateBill();
+                    break;
+
+                case 0:
+                    cout << "\nThank You For Using Hospital Management System!\n";
+                    break;
+
+                default:
+                    cout << "\nInvalid Choice! Try Again.\n";
+            }
+
+        } while (choice != 0);
+    }
+};
+
+// Main Function
+int main() {
+
+    Hospital h;
+
+    h.menu();
 
     return 0;
 }
